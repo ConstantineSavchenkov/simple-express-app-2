@@ -26,7 +26,8 @@ export class FindFarmsDto {
   public pageSize?: number;
 
   @Min(1)
-  @Max(20) // small limit because of free 3 party api
+  @Max(12) // small limit because of distancematrix provides only 20 free destantion
+          // and we need some buffer elements to increase precision
   @IsOptional()
   public limit?: number;
 

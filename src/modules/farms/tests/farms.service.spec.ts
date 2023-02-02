@@ -160,8 +160,8 @@ describe("FarmsService", () => {
       await ss.run.all();
       const farms = await farmsService.findAllFarms({ sort: FarmSortingFields.DRIVING_DISTANCE }, createdUser.id);
       expect(
-        farms[0].driving_distance_km < farms[1].driving_distance_km &&
-          farms[1].driving_distance_km < farms[2].driving_distance_km,
+        farms[0].driving_distance < farms[1].driving_distance &&
+          farms[1].driving_distance < farms[2].driving_distance,
       ).toEqual(true);
     });
 

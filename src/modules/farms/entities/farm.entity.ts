@@ -65,5 +65,5 @@ export class Farm {
   public updatedAt: Date;
 
   @Generated()
-  public driving_distance_km: number
+  public driving_distance: number
 }

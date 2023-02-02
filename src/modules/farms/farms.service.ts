@@ -5,7 +5,7 @@ import { FarmSortingFields, FindFarmsDto } from "./dto/find-farms.dto";
 import { Farm } from "./entities/farm.entity";
 import dataSource from "orm/orm.config";
 import { User } from "modules/users/entities/user.entity";
-import { fetchCoordinates } from "helpers/utils";
+import { fetchCoordinates, fetchDestinations } from "helpers/utils";
 
 import { Logger } from "../../helpers/logger";
 const logger = new Logger("FarmsService");
@@ -59,15 +59,16 @@ export class FarmsService {
       let avg;
       let max;
       let min;
-      const limit: number = data.limit || 10; // todo: move default value to config
+      const limit: number = data.limit || 5; // todo: move default value to config
       const offset: number = data.offset || 0;
+      const extraLimit: number = limit * 2; // todo: move default value to config
 
       // todo: research ways to use ST_Distance with QueryBuilder
       // solution below is not agile but does the job
 
       let select = `
-     SELECT farm.id as id, name, farm.address as address, email, size, yield,
-     ST_Distance(farm.coordinates::geography, 'SRID=4326;POINT(${user?.longitude} ${user?.latitude})'::geography)/1000 as driving_distance_km
+     SELECT farm.id as id, name, farm.address as address, email, size, yield, farm.latitude as latitude, farm.longitude as longitude, 
+     ST_Distance(farm.coordinates::geography, 'SRID=4326;POINT(${user?.longitude} ${user?.latitude})'::geography)/1000 as driving_distance
      FROM farm
      INNER JOIN "user" as u
         ON u.id=farm.user_id
@@ -106,11 +107,23 @@ export class FarmsService {
       }
 
       select += `
-      LIMIT ${limit} OFFSET ${offset};
+      LIMIT ${extraLimit} OFFSET ${offset};
       `;
 
       const result: Farm[] = (await this.farmsRepository.query(select)) as Farm[];
-      return result;
+
+      logger.info(userId, "picking driving destinations");
+      const destinations = await fetchDestinations(
+        userId,
+        { lat: user?.latitude as number, lng: user?.longitude as number },
+        result.map(el => ({ lat: el.latitude, lng: el.longitude })),
+      );
+
+      for (let index = 0; index < result.length; index++) {
+        result[index].driving_distance = destinations[index].value;
+      }
+
+      return result.sort((a, b) => a.driving_distance - b.driving_distance);
     } catch (err) {
       logger.error(userId, "error while querying farm list", err);
       throw err;
