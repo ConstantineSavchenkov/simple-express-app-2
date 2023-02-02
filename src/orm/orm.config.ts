@@ -11,6 +11,7 @@ const options: DataSourceOptions = {
   username: config.DB_USERNAME,
   password: config.DB_PASSWORD,
   database: config.DB_NAME,
+  logging: true
 };
 
 export default new DataSource(options);
