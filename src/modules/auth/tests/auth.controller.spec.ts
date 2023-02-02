@@ -38,13 +38,15 @@ describe("AuthController", () => {
   });
 
   describe("POST /auth", () => {
-    const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
+    //const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
     const loginDto: LoginUserDto = { email: "user@test.com", password: "password" };
+    const createUserDto: CreateUserDto = { email: "user@test.com", password: "password", address:"Aia 7, 10111 Tallinn, Estonia" };
+
 
     it("should login existing user", async () => {
-      await createUser(loginDto);
+      await  usersService.createUser(createUserDto);
 
-      const res = await agent.post("/api/auth/login").send(loginDto);
+      const res = await agent.post("/api/v1/auth/login").send(loginDto);
       const { token } = res.body as AccessToken;
 
       expect(res.statusCode).toBe(201);
@@ -52,7 +54,7 @@ describe("AuthController", () => {
     });
 
     it("should throw UnprocessableEntityError when user logs in with invalid email", async () => {
-      const res = await agent.post("/api/auth/login").send({ email: "invalidEmail", password: "pwd" });
+      const res = await agent.post("/api/v1/auth/login").send({ email: "invalidEmail", password: "pwd" });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({
@@ -62,9 +64,9 @@ describe("AuthController", () => {
     });
 
     it("should throw UnprocessableEntityError when user logs in with invalid password", async () => {
-      await createUser(loginDto);
+      await  usersService.createUser(createUserDto);
 
-      const res = await agent.post("/api/auth/login").send({ email: loginDto.email, password: "invalidPassword" });
+      const res = await agent.post("/api/v1/auth/login").send({ email: loginDto.email, password: "invalidPassword" });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({

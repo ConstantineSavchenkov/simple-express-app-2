@@ -1,109 +1,33 @@
-# recruitment-node-private 1.2.0
+# Notes from position candidate about challenge and algorithm  
 
-This task is to implement a “feature” **based on the current setup**. Is not really about show off, but about deliver a solid piece of work.<br/>
-We will look into the whole code and how the current setup is used, not just if it is working or not.<br/>
-If you disagree on conventions used by the setup. Please comment on them, instead of changing the given setup.
+Hello, first of all, thank you for the opportunity! I liked your recruitment challenge. 
+Unforchintley, because of the load with other recruitment challenges and technical interviews I had only two days to complete your task but I think did well enough and cover most of the requirements. 
 
-Please make sure to provide all data needed to start the app.
+For the parts that I did not cover I left todo notes, most of them tidy tasks but some of them an important
+like mocking 3 party API in tests or lack of decent logging strategy.
 
-Good luck!
+The core part of this recruitment challenge is the k nearest driving destination query. I decided that using only third-party web API for ordering rows will be too inefficient. Even 120 farms from the seed script would 
+cause sending 120 dots to some far-far away API and 120 is almost nothing for this setup, so I started looking for a way 
+that helps minimize API calls. That's how I came up with the idea to use geoGist to sort dots locally by 
+nearest destinations (not driving but geo destination which is closely related to driving destination) and by using a little bit broader ranges than the user querring feed them to web API and provide accurate data back. 
 
-## Installation
+The realization of this idea with distancematrix.io did not succeeded because for some reason this service throttles my calls and allows me to use only one destination for origin which is not suitable for my purpose.
+I abandoned this ordering optimization in feature/farm-task-driving-opt because I run out of time for this recruitment challenge.
 
-- Install [NodeJS](https://nodejs.org/en/) lts or latest version
-- Install [Docker](https://www.docker.com/get-started/)
+Aside from this difference in driving and geo destination everything else is in master and should work fine.
 
-- In root dir run `npm install`
-- In root dir run `docker-compose up` to setup postgres docker image for local development
+Thank you, if you managed to read that far)
 
-- Create a .env file with the content from .env.test
+# Where is the code exercises? 
+in /src/codeExercises.ts and /src/codeExercises.spec.ts tests for them 
+# Where is the seed script?
+It's in /src/helpers/seeding. I created it for using in tests but this set up can easily be 
+switched for cli usage 
 
-## Running the app
+# Did you changes composer yaml? 
+Yes, I changed postgree to postgree + geoGis extensions
 
-- To build the project, run `npm run build`
-- To start the project, run `npm run start`
 
-- To run the test, run `npm run test`
-- To run the lint, run `npm run lint`
 
-Application runs on [localhost:3000](http://localhost:3000) by default.
 
-## Migrations
 
-Migration scripts:
-
-- `npm run migration:generate --path=moduleName --name=InitialMigration` - automatically generates migration files with
-  schema changes made
-- `npm run migration:create --path=moduleName --name=CreateTableUsers` - creates new empty migration file
-- `npm run migration:run` - runs migration
-- `npm run migration:revert` - reverts changes
-
-# Small code exercises
-
-1. Please write a function to transform array to containing number and strings.
-
-    - e.g `['super', '20.5', 'test', '23' ]` -> `['super', 20.5, 'test', 23 ]`
-
-2. Please write a function to return an array of all files with `csv` extension in folder `/files`
-
-3. Please write a function to return if a string contains a digit
-    - e.g `'test-string'` -> `false`
-    - e.g `'test-string23'` -> `true`
-
-# Farms Task - API
-
-## Setup
-
-- Use created app
-- Free to add additional packages
-- Use existing user authentication
-- Make sure all added endpoints are only accessible for authenticated users (jwt needs to be validated & checked against DB)
-
-## Requirements
-
-### General
-
-1. Need to have test
-
-### Model
-
-1. User should have following properties: `address` & `coordinates`. 
-2. Farm should belong to specific user & have following properties: `name`,  `address`, `coordinates`, `size` (e.g 21.5) & `yield` (e.g. 8.5)
-
-### API
-
-_Add API that supports following requirements:_
-
-- There should be versioning endpoints (f.e. /api/v1/..)
-
-- As a user I want to be able to create my **own** farms
-    - Coordinates can't be set manually, have to be populated automatically based on the address
-
-- As a user I want to be able to delete my **own** farms
-
-- As a user I want to be able to retrieve a list of all farms **of all users**.
-    - The list should contain following properties: 
-      - `name`
-      - `address`
-      - `owner` (email)
-      - `size`
-      - `yield`
-      - `driving distance` (travel distance from farm to requesting user's address)<br/>
-          For **driving distance** you can use Distance-Matrix API of *Google*, *Microsoft*, *here* or https://distancematrix.ai/nonprofit .
-          You are also welcome to use other service.
-
-    - The user should be able to get list **sorted** by
-        - **name** (a to z)
-        - **date** (newest first)
-        - **driving distance** (closest first)
-
-    - The user should be able to get list **filtered** by
-        - **outliers** (Boolean) (outliers = the yield of a farm is 30% below or above of the average yield of all farms).
-
-### Seed
-
-- Add seed that will create 4 users and 30 farms each.
-
-<br/>
-<br/>
-<br/>
