@@ -1,4 +1,4 @@
-import { IsBooleanString, IsEnum, IsNumberString, IsOptional } from "class-validator";
+import { IsBooleanString, IsEnum, IsNumberString, IsOptional, Max, Min } from "class-validator";
 
 export enum FarmSortingFields {
   NAME = "name",
@@ -24,4 +24,13 @@ export class FindFarmsDto {
   @IsNumberString()
   @IsOptional()
   public pageSize?: number;
+
+  @Min(1)
+  @Max(20) // small limit because of free 3 party api
+  @IsOptional()
+  public limit?: number;
+
+  @Min(0)
+  @IsOptional()
+  public offset?: number;
 }
